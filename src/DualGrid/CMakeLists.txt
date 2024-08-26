@@ -1,0 +1,7 @@
+target_sources(cfd
+    PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/Boundary.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Edge.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Grid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Node.cpp
+)

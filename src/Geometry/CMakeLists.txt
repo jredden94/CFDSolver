@@ -1,0 +1,8 @@
+target_sources(cfd
+	PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/Bar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Cell.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Quad.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Tetra.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Tri.cpp
+)

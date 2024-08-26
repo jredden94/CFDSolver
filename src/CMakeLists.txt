@@ -1,0 +1,14 @@
+add_executable(cfd main.cpp)
+target_link_libraries(cfd PRIVATE XAD::xad)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_subdirectory(Common)
+add_subdirectory(DualGrid)
+add_subdirectory(Geometry)
+add_subdirectory(Gradient)
+add_subdirectory(IO)
+add_subdirectory(Limiters)
+add_subdirectory(LinAlg)
+add_subdirectory(Numerics)
+add_subdirectory(Solver)
