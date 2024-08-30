@@ -10,19 +10,19 @@ void BiCGSTAB::Solve(const SolMatrix &mat, SolVector &b, SolVector &x, const uni
     r = b;
     r0 = r;
 
-    double alpha = 1.0, omega = 1.0, rho = 1.0, rho_prime = 1.0;
+    zdouble alpha = 1.0, omega = 1.0, rho = 1.0, rho_prime = 1.0;
     p.SetZeroes();
     z.SetZeroes();
     x.SetZeroes();
     Ax.SetZeroes();
     v.SetZeroes();
-    double norm0 = b.Norm();
+    zdouble norm0 = b.Norm();
 
     for (auto i = 0ul; i < max_iter; i++) {
         rho_prime = rho;
         rho = r.DotProd(r0);
 
-        double beta = (rho / rho_prime) * (alpha / omega);
+        zdouble beta = (rho / rho_prime) * (alpha / omega);
         p.MinusEqualScalarMult(v, omega);
         p *= beta;
         p += r;
@@ -30,7 +30,7 @@ void BiCGSTAB::Solve(const SolMatrix &mat, SolVector &b, SolVector &x, const uni
         precond->Apply(p, z);
         mat.MatrixVecMult(z, v);
 
-        double r_o_v = r0.DotProd(v);
+        zdouble r_o_v = r0.DotProd(v);
         alpha = rho / r_o_v;
 
         x.PlusEqualScalarMult(z, alpha);
@@ -46,7 +46,7 @@ void BiCGSTAB::Solve(const SolMatrix &mat, SolVector &b, SolVector &x, const uni
         x.PlusEqualScalarMult(z, omega);
         r.MinusEqualScalarMult(Ax, omega);
 
-        double r_norm = r.Norm();
+        zdouble r_norm = r.Norm();
         if (r_norm < tol * norm0) break;
     }
 }

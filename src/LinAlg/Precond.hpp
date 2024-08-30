@@ -3,6 +3,7 @@
 #include "SolMatrix.hpp"
 #include "SolVector.hpp"
 #include "DiagonalMatrix.hpp"
+#include "../Common/AD.hpp"
 
 class Precond {
     public:

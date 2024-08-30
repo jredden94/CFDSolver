@@ -6,18 +6,18 @@ Quad::Quad(vector<unsigned long>& connectivity, vector<Node*>& nodePtr)
             */
 Quad::~Quad() { }
 
-double Quad::ComputeVolume(void) const { 
-    const double &x1 = pNodes[0]->X();
-    const double &x2 = pNodes[1]->X();
-    const double &x3 = pNodes[2]->X();
-    const double &x4 = pNodes[3]->X();
+zdouble Quad::ComputeVolume(void) const { 
+    const zdouble &x1 = pNodes[0]->X();
+    const zdouble &x2 = pNodes[1]->X();
+    const zdouble &x3 = pNodes[2]->X();
+    const zdouble &x4 = pNodes[3]->X();
 
-    const double &y1 = pNodes[0]->Y();
-    const double &y2 = pNodes[1]->Y();
-    const double &y3 = pNodes[2]->Y();
-    const double &y4 = pNodes[3]->Y();
+    const zdouble &y1 = pNodes[0]->Y();
+    const zdouble &y2 = pNodes[1]->Y();
+    const zdouble &y3 = pNodes[2]->Y();
+    const zdouble &y4 = pNodes[3]->Y();
 
-    double vol = 0.5 * abs(x1*y2 + x2*y3 + x3*y4
+    zdouble vol = 0.5 * abs(x1*y2 + x2*y3 + x3*y4
             + x4*y1 - (y1*x2 + y2*x3 + y3*x4 + y4*x1));
     return vol;
 
@@ -51,8 +51,8 @@ vector<vector<size_t>> Quad::GetEdges(void) const {
     return edgeI;
 }
 
-vector<double> Quad::AreaVector() const {
-    vector<double> norm(3,0);
+vector<zdouble> Quad::AreaVector() const {
+    vector<zdouble> norm(3,0);
 
     return norm;
 }
@@ -87,12 +87,12 @@ void Quad::FindNeighbors(unsigned long iCell) {
 
 void Quad::ComputeDirectedArea(void) {
     for (Edge *e : pEdges) {
-        const vector<double> &midpoint = e->Midpoint();
-        const vector<double> &edgevec = e->EdgeVector();
-        vector<double> dirArea {0, 0, 0};
+        const vector<zdouble> &midpoint = e->Midpoint();
+        const vector<zdouble> &edgevec = e->EdgeVector();
+        vector<zdouble> dirArea {0, 0, 0};
         dirArea[0] = -(midpoint[1] - cy);
         dirArea[1] = midpoint[0] - cx;
-        double dot = dirArea[0] * edgevec[0] + dirArea[1] * edgevec[1];
+        zdouble dot = dirArea[0] * edgevec[0] + dirArea[1] * edgevec[1];
         if (dot < 0) {
             dirArea[0] *= -1;
             dirArea[1] *= -1;

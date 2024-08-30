@@ -6,6 +6,7 @@
 #include "../Geometry/Cell.hpp"
 #include "../Solver/Solver.hpp"
 #include "../Common/Config.hpp"
+#include "../Common/AD.hpp"
 
 namespace VTK {
 

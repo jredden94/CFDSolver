@@ -1,17 +1,17 @@
 #include "BLAS.hpp"
 #include <iostream>
 
-void blas::gemv(const double *mat, const double *vec_x, double *vec_y, 
-        const unsigned long m, const unsigned long n, const double alpha, const double beta, const bool scale) {
+void blas::gemv(const zdouble *mat, const zdouble *vec_x, zdouble *vec_y, 
+        const unsigned long m, const unsigned long n, const zdouble alpha, const zdouble beta, const bool scale) {
     for (auto i = 0ul; i < n; i++) {
-        vec_y[i] = scale ? vec_y[i] * beta : 0;
+        vec_y[i] = scale ? vec_y[i] * beta : zdouble{0.0};
         for (auto j = 0ul; j < m; j++) {
             vec_y[i] += alpha * mat[i * m + j] * vec_x[j]; 
         }
     }
 }
 
-void blas::gemm(const double* mat_a, const double *mat_b, double *mat_c, 
+void blas::gemm(const zdouble* mat_a, const zdouble *mat_b, zdouble *mat_c, 
         const unsigned long m) {
     for (auto i = 0ul; i < m; i++) {
         for (auto j = 0ul; j < m; j++) {
@@ -22,9 +22,9 @@ void blas::gemm(const double* mat_a, const double *mat_b, double *mat_c,
     }
 }
 
-void blas::InverseMatrix(const double *mat, double *mat_inv, const unsigned short m) {
+void blas::InverseMatrix(const zdouble *mat, zdouble *mat_inv, const unsigned short m) {
     // Copy mat to mat2
-    double mat2[m * m];
+    zdouble mat2[m * m];
     for (size_t i = 0; i < m * m; i++) mat2[i] = mat[i];
 
 #define M(I,J) mat_inv[I * m + J]
@@ -40,7 +40,7 @@ void blas::InverseMatrix(const double *mat, double *mat_inv, const unsigned shor
     /* To Upper Triangular */
     for (auto i = 1ul; i < m; i++) {
         for (auto j = 0ul; j < i; j++) {
-            double weight = A(i,j) / A(j,j);
+            zdouble weight = A(i,j) / A(j,j);
             for (auto k = j; k < m; k++) A(i,k) -= weight * A(j,k);
             for (auto k = 0ul; k <= j; k++) M(i,k) -= weight * M(j,k);
         }

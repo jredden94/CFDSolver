@@ -5,6 +5,7 @@
 #include <limits>
 #include <numeric>
 #include <cmath>
+#include "../Common/AD.hpp"
 
 class Config;
 
@@ -21,22 +22,22 @@ class Limiter {
         Limiter operator=(const Limiter&) = delete;
 
         void SetLimiter(const Type &type);
-        const double GetEpsilon(void) const;
+        const zdouble GetEpsilon(void) const;
         const Type LimiterType(void) const;
 
-        function<double(const double& proj_grad, const double& delta, const double& eps)> Limit;
+        function<zdouble(const zdouble& proj_grad, const zdouble& delta, const zdouble& eps)> Limit;
 
     private:
         Type type;
-        double static VanAlbada(const double &proj_grad, const double &delta, const double &eps);
-        double static Venkat(const double &proj_grad, const double &delta, const double &eps);
-        double static NR3(const double &proj_grad, const double &delta, const double &eps);
-        double static NR4(const double &proj_grad, const double &delta, const double &eps);
-        double static NR5(const double &proj_grad, const double &delta, const double &eps);
+        zdouble static VanAlbada(const zdouble &proj_grad, const zdouble &delta, const zdouble &eps);
+        zdouble static Venkat(const zdouble &proj_grad, const zdouble &delta, const zdouble &eps);
+        zdouble static NR3(const zdouble &proj_grad, const zdouble &delta, const zdouble &eps);
+        zdouble static NR4(const zdouble &proj_grad, const zdouble &delta, const zdouble &eps);
+        zdouble static NR5(const zdouble &proj_grad, const zdouble &delta, const zdouble &eps);
 
-        double venkat_eps = 0.5;
-        static constexpr double machine_eps = numeric_limits<double>::epsilon();
-        static constexpr double ref_len = 1.0;
-        double eps;
+        zdouble venkat_eps = 0.5;
+        zdouble machine_eps = numeric_limits<zdouble>::epsilon();
+        zdouble ref_len = 1.0;
+        zdouble eps;
 };
 

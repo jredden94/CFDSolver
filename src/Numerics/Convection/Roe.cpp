@@ -1,9 +1,9 @@
 #include "Convection.hpp"
 
 Roe::Roe() : Convection(Config::ConvFlux::Roe) { 
-    p_tensor = new double[nVar * nVar];
-    p_inv = new double[nVar * nVar];
-    del_u = new double[nVar];
+    p_tensor = new zdouble[nVar * nVar];
+    p_inv = new zdouble[nVar * nVar];
+    del_u = new zdouble[nVar];
     entropy_fix_coeff = 0.001;
     diss_coeff = config->GetRoeDissipationCoefficient();
 }

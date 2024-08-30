@@ -9,6 +9,7 @@
 #include "Edge.hpp"
 #include "Boundary.hpp"
 #include "../Common/Config.hpp"
+#include "../Common/AD.hpp"
 
 using namespace std;
 

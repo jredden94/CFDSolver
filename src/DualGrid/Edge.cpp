@@ -6,11 +6,11 @@ Edge::~Edge() { }
 const unsigned long Edge::Node1() const { return iNode1; }
 const unsigned long Edge::Node2() const { return iNode2; }
 const vector<unsigned long> Edge::Cells() const { return iCells; }
-const vector<double>& Edge::EdgeVector() const { return edge_vec; } 
-const vector<double>& Edge::AreaVector() const { return area_vec; }
-const vector<double>& Edge::Midpoint() const { return mid_vec; }
-const double Edge::Area() const { return area_mag; }
-const double Edge::Length() const { return length; }
+const vector<zdouble>& Edge::EdgeVector() const { return edge_vec; } 
+const vector<zdouble>& Edge::AreaVector() const { return area_vec; }
+const vector<zdouble>& Edge::Midpoint() const { return mid_vec; }
+const zdouble Edge::Area() const { return area_mag; }
+const zdouble Edge::Length() const { return length; }
 
 void Edge::ComputeMetrics(const Node &n1, const Node &n2) {
     mid_vec[0] = 0.5 * (n1.X() + n2.X() );
@@ -38,7 +38,7 @@ void Edge::ComputeMetrics(const Node &n1, const Node &n2) {
     }
 }
 
-void Edge::AddDirArea(const vector<double> &dirArea) {
+void Edge::AddDirArea(const vector<zdouble> &dirArea) {
     area_vec[0] += dirArea[0];
     area_vec[1] += dirArea[1];
     area_vec[2] += dirArea[2];

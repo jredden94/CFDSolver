@@ -4,6 +4,7 @@
 #include "SolMatrix.hpp"
 #include "SolVector.hpp"
 #include "Precond.hpp"
+#include "../Common/AD.hpp"
 
 class BiCGSTAB {
     public:
@@ -14,5 +15,5 @@ class BiCGSTAB {
     private:
         SolVector Ax, r0, r, p, v, z;
         unsigned short max_iter = 50;
-        double tol = 0.001;
+        zdouble tol = 0.001;
 };

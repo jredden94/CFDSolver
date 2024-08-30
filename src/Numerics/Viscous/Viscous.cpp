@@ -7,20 +7,20 @@ Viscous::Viscous() {
     nDim = config->GetNumDims();
     implicit = config->IsImplicit();
 
-    v_i = new double[nVar];
-    v_j = new double[nVar];
-    v_mean = new double[nVar];
-    norm = new double[nDim];
-    vel_grad_i = new double[nDim * nDim];
-    vel_grad_j = new double[nDim * nDim];
-    vel_grad_mean = new double[nDim * nDim];
-    visc_flux = new double[nVar];
-    tau = new double[nDim * nDim];
+    v_i = new zdouble[nVar];
+    v_j = new zdouble[nVar];
+    v_mean = new zdouble[nVar];
+    norm = new zdouble[nDim];
+    vel_grad_i = new zdouble[nDim * nDim];
+    vel_grad_j = new zdouble[nDim * nDim];
+    vel_grad_mean = new zdouble[nDim * nDim];
+    visc_flux = new zdouble[nVar];
+    tau = new zdouble[nDim * nDim];
 
     if (implicit) {
-        tau_jac = new double[nDim * nVar];
-        jac_i = new double[nVar * nVar];
-        jac_j = new double[nVar * nVar];
+        tau_jac = new zdouble[nDim * nVar];
+        jac_i = new zdouble[nVar * nVar];
+        jac_j = new zdouble[nVar * nVar];
     }
 }
 
@@ -41,12 +41,13 @@ Viscous::~Viscous() {
     }
 }
 
-const double* Viscous::Flux(void) const { return visc_flux; }
-const double* Viscous::JacI(void) const { return jac_i; }
-const double* Viscous::JacJ(void) const { return jac_j; }
+const zdouble* Viscous::Flux(void) const { return visc_flux; }
+const zdouble* Viscous::JacI(void) const { return jac_i; }
+const zdouble* Viscous::JacJ(void) const { return jac_j; }
+const zdouble* Viscous::StressTensor(void) const { return tau; }
 
-void Viscous::SetStates(const double *v_i, const double *v_j, const double *norm,
-        const double area, const double edge_len, const double *vel_grad_i, const double *vel_grad_j) { 
+void Viscous::SetStates(const zdouble *v_i, const zdouble *v_j, const zdouble *norm,
+        const zdouble area, const zdouble edge_len, const zdouble *vel_grad_i, const zdouble *vel_grad_j) { 
     for (auto iVar = 0ul; iVar < nVar; iVar++) {
         this->v_i[iVar] = v_i[iVar];
         this->v_j[iVar] = v_j[iVar];
@@ -69,6 +70,14 @@ void Viscous::ComputeResidual() {
         v_mean[iVar] = 0.5 * (v_i[iVar] + v_j[iVar]);
     }
 
+    zdouble t_mean = v_mean[nVar-1] / (v_mean[0] * 287.0);
+    zdouble t_ref = 273.15;
+    zdouble suth = 110.4;
+    zdouble mu_ref = 1.716e-05;
+    zdouble t_nondim = t_mean / t_ref;
+    //viscosity = mu_ref * t_nondim * sqrtf(t_nondim * (t_ref + suth) / (t_mean + suth));//(t_nondim * ((t_ref + suth) / (t_mean _ suth)));
+
+
     for (auto iDim = 0ul; iDim < nDim; iDim++) {
         for (auto jDim = 0ul; jDim < nDim; jDim++) {
             vel_grad_mean[iDim * nDim + jDim] = 0.5 * (vel_grad_i[iDim * nDim + jDim]
@@ -76,7 +85,7 @@ void Viscous::ComputeResidual() {
         }
     }
 
-    ComputeStressTensor();
+    ComputeStressTensor(vel_grad_mean, viscosity, tau);
     ComputeViscousFlux();
 
     if (implicit) {
@@ -85,28 +94,26 @@ void Viscous::ComputeResidual() {
     }
 }
 
-void Viscous::ComputeStressTensor() { 
-    for (auto i = 0ul; i < nDim * nDim; i++)
-        tau[i] = 0.0;
+void Viscous::ComputeStressTensor(const zdouble *vel_grad, const zdouble viscosity, zdouble *tau ) { 
+    for (auto i = 0ul; i < nDim * nDim; i++) tau[i] = 0.0;
 
-    double vel_div = 0.0;
+    zdouble vel_div = 0.0;
     for (auto iDim = 0ul; iDim < nDim; iDim++)
-        vel_div += vel_grad_mean[iDim * nDim + iDim];
+        vel_div += vel_grad[iDim * nDim + iDim];
 
-    double p = 2.0 / 3.0 * vel_div * viscosity;
+    zdouble p = 2.0 / 3.0 * vel_div * viscosity;
 
     for (auto iDim = 0ul; iDim < nDim; iDim++) {
         for (auto jDim = 0ul; jDim < nDim; jDim++) {
             tau[iDim * nDim + jDim] = viscosity 
-                * (vel_grad_mean[iDim * nDim + jDim] + vel_grad_mean[jDim * nDim + iDim]);
+                * (vel_grad[iDim * nDim + jDim] + vel_grad[jDim * nDim + iDim]);
         }
         tau[iDim * nDim + iDim] -= p;
     }
-    
 }
 
 void Viscous::ComputeViscousFlux(void) {
-    double flux_tensor[5][3];
+    zdouble flux_tensor[5][3];
 
 #define TAU(I,J) tau[I * nDim + J]
     if (nDim == 3) {
@@ -134,15 +141,15 @@ void Viscous::ComputeViscousFlux(void) {
 }
 
 void Viscous::ComputeTauJacobian(void) {
-    double rho = v_mean[0];
-    double xi = viscosity / (rho * edge_len);
+    zdouble rho = v_mean[0];
+    zdouble xi = viscosity / (rho * edge_len);
 
-#define DEL(I,J) I == J ? 1.0 : 0.0
+#define DEL(I,J) I == J ? zdouble{1.0} : zdouble{0.0}
 #define TAU(I,J) tau_jac[I * nVar + J]
 
     for (auto iDim = 0ul; iDim < nDim; iDim++) {
         for (auto jDim = 0ul; jDim < nDim; jDim++) {
-            TAU(iDim, jDim+1) = -xi * (DEL(iDim, jDim) + norm[iDim] * norm[jDim] / 3.0);
+            TAU(iDim, jDim+1) = -xi * (DEL(iDim, jDim) + norm[iDim] * norm[jDim] / zdouble{3.0});
         }
 
         TAU(iDim, 0) = 0.0;
@@ -159,8 +166,8 @@ void Viscous::ComputeTauJacobian(void) {
 
 /* Currently no heat fluxes */
 void Viscous::ComputeJacobians(void) {
-    double rho = v_mean[0];
-    double factor = 0.5 / rho;
+    zdouble rho = v_mean[0];
+    zdouble factor = 0.5 / rho;
 
     if (nDim == 3) {
     }
@@ -177,7 +184,7 @@ void Viscous::ComputeJacobians(void) {
         jac_i[9] = area * tau_jac[5];
         jac_i[10] = area * tau_jac[6];
         jac_i[11] = area * tau_jac[7];
-        double contraction = tau_jac[0] * v_mean[1] + tau_jac[4] * v_mean[2];
+        zdouble contraction = tau_jac[0] * v_mean[1] + tau_jac[4] * v_mean[2];
         jac_i[12] = area * contraction;
         jac_i[13] = -area * tau_jac[0];
         jac_i[14] = -area * tau_jac[4];
@@ -185,7 +192,7 @@ void Viscous::ComputeJacobians(void) {
 
         for (auto i = 0ul; i < nVar * nVar; i++) jac_j[i] = -jac_i[i];
 
-        double proj_visc_flux_vel = visc_flux[1] * v_mean[1] + visc_flux[2] * v_mean[2];
+        zdouble proj_visc_flux_vel = visc_flux[1] * v_mean[1] + visc_flux[2] * v_mean[2];
 
         jac_i[12] -= factor * proj_visc_flux_vel;
         jac_i[13] += factor * visc_flux[1];

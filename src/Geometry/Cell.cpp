@@ -100,17 +100,17 @@ size_t Cell::FindEdges(void) const {
 }
 
 //normal1 = triangle_area_vector(xm,xc,xcl, ym,yc,ycl, zm,zc,zcl)
-vector<double> Cell::TriAreaVector(const vector<double> &p1, 
-        const vector<double> &p2, const vector<double> &p3, const double &coeff) const {
-    vector<double> aVec(3,0);
+vector<zdouble> Cell::TriAreaVector(const vector<zdouble> &p1, 
+        const vector<zdouble> &p2, const vector<zdouble> &p3, const zdouble &coeff) const {
+    vector<zdouble> aVec(3,0);
     aVec[0] = coeff * 0.5 * ((p1[1]-p3[1]) * (p2[2]-p3[2]) - (p1[2]-p3[2]) * (p2[1]-p3[1]));
     aVec[1] = coeff * 0.5 * ((p1[2]-p3[2]) * (p2[0]-p3[0]) - (p1[0]-p3[0]) * (p2[2]-p3[2]));
     aVec[2] = coeff * 0.5 * ((p1[0]-p3[0]) * (p2[1]-p3[1]) - (p1[1]-p3[1]) * (p2[0]-p3[0]));
     return aVec;
 }
-vector<double> Cell::TriCentroid(const Node* n1, 
+vector<zdouble> Cell::TriCentroid(const Node* n1, 
         const Node* n2, const Node* n3) const {
-    vector<double> ctr(3,0);
+    vector<zdouble> ctr(3,0);
     ctr[0] = (n1->X() + n2->X() + n3->X() ) / 3;
     ctr[1] = (n1->Y() + n2->Y() + n3->Y() ) / 3;
     ctr[2] = (n1->Z() + n2->Z() + n3->Z() ) / 3;

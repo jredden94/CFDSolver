@@ -22,7 +22,7 @@ void ReadGrid2D(Grid&grid, string filename) {
     cout << "nNodes: " << nNodes << "\tnTri: " << nTri << "\tnQuad: " << nQuad << endl;
 
     for (size_t i = 0; i < nNodes; i++) {
-        double x = 0, y = 0, z = 0;
+        zdouble x = 0, y = 0, z = 0;
         file >> x >> y;
         nodes.push_back(Node(x, y, z));
     };
@@ -121,7 +121,7 @@ void ReadGrid3D(Grid &grid, string filename) {
     cout << "nNodes: " << nNodes << "\tnTri: " << nTri << "\tnTet: " << nTet << endl;
 
     for (size_t i = 0; i < nNodes; i++) {
-        double x = 0, y = 0, z = 0;
+        zdouble x = 0, y = 0, z = 0;
         file >> x >> y >> z;
         nodes.push_back(Node(x, y, z));
     }
@@ -191,63 +191,10 @@ int main(void) {
     reader->ReadFile();
     reader->TransferToGrid(grid);
 
-    //ReadGrid3D(grid, "sphere.ugrid");
-    //ReadGrid2D(grid, "airfoil.grid");
-
     grid.BuildDualGrid();
     //grid.FlipBoundaryNorms();
 
     config.SetNumEqn(grid.Nodes().size() );
-
-    /*
-    Viscous vis;
-    double v_i[4], v_j[4], norm[2], area, edge_len, vel_grad_j[4], vel_grad_i[4];
-    v_i[0] = 1.0;
-    v_i[1] = 44.8918;
-    v_i[2] = 0.687163;
-    v_i[3] = 0.0;
-    v_j[0] = 1.0;
-    v_j[1] = 44.8918;
-    v_j[2] = -0.687163;
-    v_j[3] = 0.0;
-    norm[0] = 0.0;
-    norm[1] = -1.0;
-    area = 0.0010103;
-
-    vel_grad_i[0] = 1162.11;
-    vel_grad_i[1] = -18486.4;
-    vel_grad_i[2] = -34789.7;
-    vel_grad_i[3] = 662937;
-
-    vel_grad_j[0] = 1162.11;
-    vel_grad_j[1] = 18486.4;
-    vel_grad_j[2] = -34789.7;
-    vel_grad_j[3] = 662937;
-    vis.SetStates(v_i, v_j, norm, area, 0.0, vel_grad_i, vel_grad_j);
-    vis.ComputeResidual();
-    const double *jac_i = vis.JacI();
-    const double *jac_j = vis.JacJ();
-
-
-    const double* flux = vis.Flux();
-    cout << "Flux\n" << flux[0] << "\t" << flux[1] << "\t" << flux[2] << "\t" << flux[3] << endl;
-
-    cout << "\njac_i\n";
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < 4; j++) {
-            cout << jac_i[i * 4 + j] << "\t";
-        }
-        cout << endl;
-    }
-
-    cout << "\njac_j\n";
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < 4; j++) {
-            cout << jac_j[i * 4 + j] << "\t";
-        }
-        cout << endl;
-    }
-    */
 
     unique_ptr<Solver> solver = Solver::CreateSolver(&grid);
     solver->Solve();

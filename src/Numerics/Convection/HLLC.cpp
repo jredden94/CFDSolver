@@ -1,13 +1,13 @@
 #include "Convection.hpp"
 
 HLLC::HLLC() : Convection(Config::ConvFlux::HLLC) { 
-    inter_state = new double[nVar];
+    inter_state = new zdouble[nVar];
     if (implicit) {
-        dp_du_i = new double[nVar];
-        dsM_du = new double[nVar];
-        drhoStar_du = new double[nVar];
-        dpStar_du = new double[nVar];
-        deStar_du = new double[nVar];
+        dp_du_i = new zdouble[nVar];
+        dsM_du = new zdouble[nVar];
+        drhoStar_du = new zdouble[nVar];
+        dpStar_du = new zdouble[nVar];
+        deStar_du = new zdouble[nVar];
     }
 }
 HLLC::~HLLC() { 

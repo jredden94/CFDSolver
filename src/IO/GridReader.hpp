@@ -5,6 +5,7 @@
 #include <istream>
 #include "../DualGrid/Grid.hpp"
 #include "../Common/Config.hpp"
+#include "../Common/AD.hpp"
 
 class GridReader {
     public:

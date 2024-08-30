@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "../DualGrid/Node.hpp"
+#include "../Common/AD.hpp"
 
 using namespace std;
 
@@ -13,13 +14,13 @@ class Edge {
         const unsigned long Node1(void) const;
         const unsigned long Node2(void) const;
         const vector<unsigned long> Cells(void) const;
-        const vector<double>& EdgeVector(void) const;
-        const vector<double>& AreaVector(void) const;
-        const vector<double>& Midpoint(void) const;
-        const double Area(void) const;
-        const double Length(void) const;
+        const vector<zdouble>& EdgeVector(void) const;
+        const vector<zdouble>& AreaVector(void) const;
+        const vector<zdouble>& Midpoint(void) const;
+        const zdouble Area(void) const;
+        const zdouble Length(void) const;
         void ComputeMetrics(const Node &n1, const Node &n2);
-        void AddDirArea(const vector<double> &dirArea);
+        void AddDirArea(const vector<zdouble> &dirArea);
         void NormalizeDirAreaVec(void);
 
         friend class Grid;
@@ -28,8 +29,8 @@ class Edge {
         unsigned long iNode1, iNode2;
         vector<unsigned long> iCells;
 
-        double length, area_mag;
-        vector<double> mid_vec;
-        vector<double> edge_vec;
-        vector<double> area_vec;
+        zdouble length, area_mag;
+        vector<zdouble> mid_vec;
+        vector<zdouble> edge_vec;
+        vector<zdouble> area_vec;
 };

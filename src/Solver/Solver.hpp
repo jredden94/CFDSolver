@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "../Common/Config.hpp"
+#include "../Common/AD.hpp"
 #include "../DualGrid/Grid.hpp"
 #include "../DualGrid/Edge.hpp"
 #include "../DualGrid/Node.hpp"
@@ -32,9 +33,9 @@ class Solver {
     protected:
         Solver(Config::SolverType);
         LeastSquaresGrad lsq_grad;
-        double *v_i, *v_j;
+        zdouble *v_i, *v_j;
         void UpdatePrimitiveVars(void);
-        void PrintResiduals(const unsigned long current_iter) const;
+        void PrintResiduals(const unsigned long current_iter, const zdouble cL = 0.0, const zdouble cD = 0.0) const;
         void AdaptCFL(void);
 
         Config *config;
@@ -48,20 +49,20 @@ class Solver {
         SolVector delU, residual, conVar, primVar;
         SolMatrix jacMat;
 
-        double cfl, gamma;
-        vector<double> waveSpeed, dt;
+        zdouble cfl, gamma;
+        vector<zdouble> waveSpeed, dt;
         Grid *grid;
         unique_ptr<Convection> conv_flux;
         bool viscous;
         Viscous visc_flux;
 
-        double tol;
+        zdouble tol;
         unique_ptr<Precond> precond;
         BiCGSTAB sysSolver;
         GSS gsSolver;
         GMRES gmres;
-        mutable vector<double> res_norm;
-        vector<double> nonlinear_res;
+        mutable vector<zdouble> res_norm;
+        vector<zdouble> nonlinear_res;
         unsigned long nonlinear_res_counter = 0, nonlinear_res_max_count = 25;
 
 };
@@ -72,6 +73,6 @@ class Euler : public Solver {
         ~Euler() override;
 
         void Solve() override;
-        vector<double> GetBoundaryState(const Boundary::BCType &type, 
-                const double *leftState, const vector<double> &norm) const;
+        vector<zdouble> GetBoundaryState(const Boundary::BCType &type, 
+                const zdouble *leftState, const vector<zdouble> &norm) const;
 };

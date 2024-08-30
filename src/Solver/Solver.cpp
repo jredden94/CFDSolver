@@ -24,8 +24,8 @@ unique_ptr<Solver> Solver::CreateSolver(Grid *grid) {
 }
 
 void Solver::Init() {
-    v_i = new double[nVar];
-    v_j = new double[nVar];
+    v_i = new zdouble[nVar];
+    v_j = new zdouble[nVar];
     auto &config = Config::GetConfig();
     this->config = &config;
     nVar = config.GetNumVars();
@@ -37,16 +37,16 @@ void Solver::Init() {
     dt.resize(nEqn, 0);
     waveSpeed.resize(nEqn, 0);
     conv_flux = Convection::CreateConvFlux(&config);
-    const vector<double> &vel_inf = config.GetFreestreamVelocity();
-    const double rho_inf = config.GetFreestreamDensity();
-    const double p_inf = config.GetFreestreamPressure();
+    const vector<zdouble> &vel_inf = config.GetFreestreamVelocity();
+    const zdouble rho_inf = config.GetFreestreamDensity();
+    const zdouble p_inf = config.GetFreestreamPressure();
     gamma = config.GetGamma();
 
-    vector<double> u0(nVar, 0);
-    vector<double> w0(nVar, 0);
+    vector<zdouble> u0(nVar, 0);
+    vector<zdouble> w0(nVar, 0);
     u0[0] = rho_inf;
     w0[0] = rho_inf;
-    double vel_sqr = 0;
+    zdouble vel_sqr = 0;
     for (unsigned short i = 0; i < nDim; i++) {
         w0[i+1] = vel_inf[i];
         u0[i+1] = vel_inf[i] * rho_inf;
@@ -70,7 +70,7 @@ void Solver::UpdatePrimitiveVars(void) {
     unsigned long nBlock = primVar.GetBlockCount();
     for (auto i = 0ul; i < nBlock; i++) {
         primVar[i][0] = conVar[i][0];
-        double vel_sqr = 0;
+        zdouble vel_sqr = 0;
         for (unsigned short j = 0; j < nDim; j++) {
             primVar[i][j+1] = conVar[i][j+1] / conVar[i][0];
             vel_sqr += primVar[i][j+1] * primVar[i][j+1];
@@ -80,7 +80,7 @@ void Solver::UpdatePrimitiveVars(void) {
     }
 }
 
-void Solver::PrintResiduals(const unsigned long current_iter) const {
+void Solver::PrintResiduals(const unsigned long current_iter, const double cL, const double cD) const {
     converged = true;
 
     res_norm = residual.ResNorm();
@@ -89,17 +89,19 @@ void Solver::PrintResiduals(const unsigned long current_iter) const {
         cout << res_norm[i] << "\t";
         if (res_norm[i] >= tol) converged = false;
     }
+    if (cL != 0.0) cout << "cL: " << cL << "\t";
+    if (cD != 0.0) cout << "cD: " << cD << "\t";
     cout << endl;
 }
 
 void Solver::AdaptCFL() {
     if (nonlinear_res.empty()) nonlinear_res.resize(nonlinear_res_max_count);
 
-    double new_scaled_res_sum = 0.0;
+    zdouble new_scaled_res_sum = 0.0;
     for (unsigned short i = 0; i < nVar; i++)
         new_scaled_res_sum += log10(res_norm[i]);
 
-    double old_scaled_res_sum = nonlinear_res_counter == 0 ? new_scaled_res_sum : nonlinear_res[nonlinear_res_counter - 1];
+    zdouble old_scaled_res_sum = nonlinear_res_counter == 0 ? new_scaled_res_sum : nonlinear_res[nonlinear_res_counter - 1];
     nonlinear_res[nonlinear_res_counter++] = new_scaled_res_sum - old_scaled_res_sum;
 
     bool resetCFL, reduceCFL, increaseCFL;
@@ -107,8 +109,8 @@ void Solver::AdaptCFL() {
     if (nonlinear_res_counter >= nonlinear_res_max_count) {
         nonlinear_res_counter = 0;
         unsigned long sign_changes = 0;
-        double total_change = 0.0;
-        double prev = nonlinear_res.front();
+        zdouble total_change = 0.0;
+        zdouble prev = nonlinear_res.front();
         for (const auto& val : nonlinear_res) {
             total_change += val;
             sign_changes += (prev > 0) ^ (val > 0);

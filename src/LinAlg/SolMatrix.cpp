@@ -25,7 +25,7 @@ void SolMatrix::Init() {
 
     blk_len = nVar * nVar;
     val_len = nnz * blk_len;
-    val = new double[val_len];
+    val = new zdouble[val_len];
     col_ind = new unsigned long[nnz];
     row_ptr = new unsigned long[nEqn + 1];
 
@@ -46,32 +46,32 @@ void SolMatrix::Zeroes() {
     for (auto i = 0ul; i < val_len; i++) val[i] = 0;
 }
 
-const double* SolMatrix::GetBlock(const unsigned long row, const unsigned long col) const {
+const zdouble* SolMatrix::GetBlock(const unsigned long row, const unsigned long col) const {
     for (unsigned long i = row_ptr[row]; i < row_ptr[row+1]; i++)
         if (col_ind[i] == col) return &val[i * blk_len];
     return nullptr;
 }
 
-double* SolMatrix::GetBlock(const unsigned long row, const unsigned long col) {
+zdouble* SolMatrix::GetBlock(const unsigned long row, const unsigned long col) {
     for (unsigned long i = row_ptr[row]; i < row_ptr[row+1]; i++)
         if (col_ind[i] == col) return &val[i * blk_len];
     return nullptr;
 }
 
-void SolMatrix::AddBlock(const unsigned long row, const unsigned long col, const double* block, const double alpha) {
-    double *b = GetBlock(row, col);
+void SolMatrix::AddBlock(const unsigned long row, const unsigned long col, const zdouble* block, const zdouble alpha) {
+    zdouble *b = GetBlock(row, col);
     for (auto i = 0ul; i < blk_len; i++) { 
         b[i] += alpha * block[i];
     }
 }
 
-void SolMatrix::SubtractBlock(const unsigned long row, const unsigned long col, const double* block, const double alpha) {
-    double *b = GetBlock(row, col);
+void SolMatrix::SubtractBlock(const unsigned long row, const unsigned long col, const zdouble* block, const zdouble alpha) {
+    zdouble *b = GetBlock(row, col);
     for (auto i = 0ul; i < blk_len; i++) b[i] -= alpha * block[i];
 }
 
-void SolMatrix::AddToDiag(const unsigned long row, const unsigned long col, const double val) {
-    double *block = GetBlock(row, col);
+void SolMatrix::AddToDiag(const unsigned long row, const unsigned long col, const zdouble val) {
+    zdouble *block = GetBlock(row, col);
     for (unsigned short i = 0; i < nVar; i++) block[i * nVar + i] += val;
 }
 
@@ -83,9 +83,9 @@ void SolMatrix::MatrixVecMult(const SolVector &b, SolVector &x) const {
 void SolMatrix::RowProduct(const SolVector &b, SolVector &x, const unsigned long row) const {
     for (auto i = row_ptr[row]; i < row_ptr[row+1]; i++) {
         const unsigned long &col = col_ind[i];
-        const double *mat_blk = this->GetBlock(row, col);
-        const double *vec_blk = b.GetBlock(col);
-        double *prod_blk = x.GetBlock(col);
+        const zdouble *mat_blk = this->GetBlock(row, col);
+        const zdouble *vec_blk = b.GetBlock(col);
+        zdouble *prod_blk = x.GetBlock(col);
         blas::gemv(mat_blk, vec_blk, prod_blk, nVar, nVar, 1, 1, true);
     }
 }

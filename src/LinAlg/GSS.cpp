@@ -6,11 +6,11 @@ GSS::GSS() {
     vec_len = config.GetNumVars();
     mat_len = vec_len * vec_len;
     nEqn = config.GetNumEqn();
-    lu_lower = new double[mat_len];
-    lu_upper = new double[mat_len];
-    b = new double[vec_len];
-    y = new double[vec_len];
-    x = new double[vec_len];
+    lu_lower = new zdouble[mat_len];
+    lu_upper = new zdouble[mat_len];
+    b = new zdouble[vec_len];
+    y = new zdouble[vec_len];
+    x = new zdouble[vec_len];
 }
 GSS::~GSS() { 
     delete[] lu_lower;
@@ -24,13 +24,13 @@ void GSS::Solve(const SolMatrix &mat, const SolVector &b_vec, SolVector &x_vec, 
     //x_vec.SetZeroes();
     const unsigned long *row_ptr = mat.GetRowPtr();
     const unsigned long *col_ind = mat.GetColInd();
-    const double *diag, *off_diag;
+    const zdouble *diag, *off_diag;
 
     for (unsigned short sweep = 0; sweep < nSweeps; sweep++) {
         // Loop through matrix rows
         for (auto i = 0ul; i < nEqn; i++) {
             // b = b_vec block i
-            const double* b_blk = b_vec.GetBlock(i);
+            const zdouble* b_blk = b_vec.GetBlock(i);
             for (auto k = 0ul; k < vec_len; k++) b[k] = b_blk[k];
             diag = mat.GetBlock(i, i);
 
@@ -40,7 +40,7 @@ void GSS::Solve(const SolMatrix &mat, const SolVector &b_vec, SolVector &x_vec, 
                 if (col == i) continue;
 
                 // b -= off_diag * x_vec block col
-                const double *x_blk = x_vec.GetBlock(col);
+                const zdouble *x_blk = x_vec.GetBlock(col);
                 off_diag = mat.GetBlock(i, col);
 
                 blas::gemv(off_diag, b_blk, b, vec_len, vec_len, -1, 1, true);
@@ -54,7 +54,7 @@ void GSS::Solve(const SolMatrix &mat, const SolVector &b_vec, SolVector &x_vec, 
     }
 }
 
-void GSS::LUDecomposition(const double *block) {
+void GSS::LUDecomposition(const zdouble *block) {
     for (size_t i = 0; i < mat_len; i++) {
         lu_lower[i] = 0;
         lu_upper[i] = 0;
@@ -63,7 +63,7 @@ void GSS::LUDecomposition(const double *block) {
     for (size_t i = 0; i < vec_len; i++) {
         // Upper
         for (size_t k = i; k < vec_len; k++) {
-            double sum = 0;
+            zdouble sum = 0;
             for (size_t j = 0; j < i; j++) {
                 sum += lu_lower[i * vec_len + j] * lu_upper[j * vec_len + k];
             }
@@ -74,7 +74,7 @@ void GSS::LUDecomposition(const double *block) {
         for (size_t k = i; k < vec_len; k++) {
             if (i == k) lu_lower[i * vec_len + i] = 1;
             else {
-                double sum = 0;
+                zdouble sum = 0;
                 for (size_t j = 0; j < i; j++) {
                     sum += lu_lower[k * vec_len + j] * lu_upper[j * vec_len + i];
                 }
@@ -84,7 +84,7 @@ void GSS::LUDecomposition(const double *block) {
     }
 }
 
-void GSS::LUSolve(const double *mat, const double *b, double *x) {
+void GSS::LUSolve(const zdouble *mat, const zdouble *b, zdouble *x) {
     LUDecomposition(mat);
 
     // Ly = b

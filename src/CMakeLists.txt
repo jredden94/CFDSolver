@@ -1,5 +1,7 @@
 add_executable(cfd main.cpp)
 target_link_libraries(cfd PRIVATE XAD::xad)
+target_include_directories(cfd PRIVATE CODI/include)
+target_include_directories(cfd PRIVATE ${CMAKE_BINARY_DIR}/_deps/codi-src/include)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

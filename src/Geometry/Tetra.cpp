@@ -11,10 +11,10 @@ Tetra::~Tetra() { }
 //  !z-component of the area vector
 //   area_vector(iz) = 0.5_dp*( (x1-x3)*(y2-y3)-(y1-y3)*(x2-x3) )
 
-double Tetra::ComputeVolume() const {
-    double volume = 0;
-    double xc, yc, zc;
-    vector<double> aVec(3,0);
+zdouble Tetra::ComputeVolume() const {
+    zdouble volume = 0;
+    zdouble xc, yc, zc;
+    vector<zdouble> aVec(3,0);
     Node *n1, *n2, *n3;
     // Triangle 1,2,3
     n1 = pNodes[0];
@@ -142,8 +142,8 @@ vector<vector<size_t>> Tetra::GetEdges() const {
     return edgeI;
 }
 
-vector<double> Tetra::AreaVector() const {
-    return vector<double>();
+vector<zdouble> Tetra::AreaVector() const {
+    return vector<zdouble>();
 }
 
 void Tetra::FindNeighbors(unsigned long iCell) {
@@ -172,9 +172,9 @@ void Tetra::FindNeighbors(unsigned long iCell) {
 void Tetra::ComputeDirectedArea(void) {
     Edge *e;
     Node *n1, *n2, *n3, *n4;
-    vector<double> em, f1m, f2m, aVec;
-    vector<double> cellCtr{cx, cy, cz};
-    double coeff = 0;
+    vector<zdouble> em, f1m, f2m, aVec;
+    vector<zdouble> cellCtr{cx, cy, cz};
+    zdouble coeff = 0;
 
     n1 = pNodes[0];
     n2 = pNodes[1];

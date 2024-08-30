@@ -2,16 +2,16 @@
 
 Tri::~Tri() { }
 
-double Tri::ComputeVolume() const {
-    const double &x1 = pNodes[0]->X();
-    const double &x2 = pNodes[1]->X();
-    const double &x3 = pNodes[2]->X();
+zdouble Tri::ComputeVolume() const {
+    const zdouble &x1 = pNodes[0]->X();
+    const zdouble &x2 = pNodes[1]->X();
+    const zdouble &x3 = pNodes[2]->X();
 
-    const double &y1 = pNodes[0]->Y();
-    const double &y2 = pNodes[1]->Y();
-    const double &y3 = pNodes[2]->Y();
+    const zdouble &y1 = pNodes[0]->Y();
+    const zdouble &y2 = pNodes[1]->Y();
+    const zdouble &y3 = pNodes[2]->Y();
 
-    double volume = 0.5 * ((x2-x1)*(y3-y1) - (y2-y1)*(x3-x1));
+    zdouble volume = 0.5 * ((x2-x1)*(y3-y1) - (y2-y1)*(x3-x1));
     volume *= 0.5;
 
     return volume;
@@ -56,7 +56,7 @@ vector<vector<size_t>> Tri::GetEdges() const {
     return edgeI;
 }
 
-vector<double> Tri::AreaVector() const {
+vector<zdouble> Tri::AreaVector() const {
     Node *n1 = pNodes[0];
     Node *n2 = pNodes[1];
     Node *n3 = pNodes[2];
@@ -83,12 +83,12 @@ void Tri::FindNeighbors(unsigned long iCell) {
 
 void Tri::ComputeDirectedArea(void) {
     for (Edge *e : pEdges) {
-        const vector<double> &midpoint = e->Midpoint();
-        const vector<double> &edgevec = e->EdgeVector();
-        vector<double> dirArea {0, 0, 0};
+        const vector<zdouble> &midpoint = e->Midpoint();
+        const vector<zdouble> &edgevec = e->EdgeVector();
+        vector<zdouble> dirArea {0, 0, 0};
         dirArea[0] = -(midpoint[1] - cy);
         dirArea[1] = midpoint[0] - cx;
-        double dot = dirArea[0] * edgevec[0] + dirArea[1] * edgevec[1];
+        zdouble dot = dirArea[0] * edgevec[0] + dirArea[1] * edgevec[1];
         if (dot < 0) {
             dirArea[0] *= -1;
             dirArea[1] *= -1;

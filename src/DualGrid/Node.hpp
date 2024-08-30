@@ -2,27 +2,28 @@
 
 #include <vector>
 #include <cmath>
+#include "../Common/AD.hpp"
 
 using namespace std;
 
 class Node {
     public:
         Node();
-        Node(double x, double y, double z);
+        Node(zdouble x, zdouble y, zdouble z);
         Node(const Node &node);
         ~Node();
 
         void operator=(const Node &node) = delete;
 
-        const double& X(void) const;
-        const double& Y(void) const;
-        const double& Z(void) const;
-        void SetX(double x);
-        void SetY(double y);
-        void SetZ(double z);
-        const vector<double> Coordinates(void) const;
+        const zdouble& X(void) const;
+        const zdouble& Y(void) const;
+        const zdouble& Z(void) const;
+        void SetX(zdouble x);
+        void SetY(zdouble y);
+        void SetZ(zdouble z);
+        const vector<zdouble> Coordinates(void) const;
         const vector<unsigned long> Cell(void) const;
-        const double& DualVolume(void) const;
+        const zdouble& DualVolume(void) const;
         const vector<unsigned long>& Neighbors(void) const;
         bool HasNeighbor(unsigned long iNbr) const;
         void AddNeighbor(const unsigned long&);
@@ -30,10 +31,10 @@ class Node {
         friend class Grid;
 
     private:
-        double x;
-        double y;
-        double z;
-        double dualVol;
+        zdouble x;
+        zdouble y;
+        zdouble z;
+        zdouble dualVol;
         vector<unsigned long> iCells;
         vector<unsigned long> iNbrs;
 };

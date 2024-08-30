@@ -9,8 +9,9 @@ LeastSquaresGrad::LeastSquaresGrad() {
     nVar = config->GetNumVars();
     blk_len = nVar * nDim;
     arr_len = nEqn * blk_len;
-    grad_array = new double[arr_len];
+    grad_array = new zdouble[arr_len];
     epsilon = limiter.GetEpsilon();
+    machine_eps = numeric_limits<zdouble>::epsilon();
 }
 
 LeastSquaresGrad::~LeastSquaresGrad() { }
@@ -40,32 +41,37 @@ void LeastSquaresGrad::ComputeGradients(const Grid *grid, const SolVector *primV
 
 void LeastSquaresGrad::SolveLeastSquares2D(const unsigned long iNode, const Node &node_i, 
         const vector<Node> &nodes, const SolVector *primVar) {
-    const double *v_i = primVar->GetBlock(iNode);
+    const zdouble *v_i = primVar->GetBlock(iNode);
     const vector<unsigned long> &nbrs = node_i.Neighbors();
     const unsigned short nNbrs = nbrs.size();
-    a11 = a12 = a22 = 0;
+    a11 = a12 = a22 = 0.0;
 
     for (auto iNbr : nbrs) {
         const Node &node_j = nodes[iNbr]; 
-        const double *v_j = primVar->GetBlock(iNbr);
-        /* A^T A */
+        const zdouble *v_j = primVar->GetBlock(iNbr);
         dx = node_j.X() - node_i.X();
         dy = node_j.Y() - node_i.Y();
-        a11 += dx * dx;
-        a12 += dx * dy;
-        a22 += dy * dy;
+
+        zdouble weight = 1.0;
+        zdouble dist_ij_2 = dx * dx + dy * dy;
+        weight = 1.0 / (dist_ij_2 + machine_eps);
+
+        /* A^T A */
+        a11 += dx * dx * weight;
+        a12 += dx * dy * weight;
+        a22 += dy * dy * weight;
 
         /* A^T b */
         for (auto iVar = 0ul; iVar < nVar; iVar++) {
-            double *grad = GetGradient(iNode, iVar);
+            zdouble *grad = GetGradient(iNode, iVar);
             delta = v_j[iVar] - v_i[iVar];
-            grad[0] += dx * delta;
-            grad[1] += dy * delta;
+            grad[0] += dx * delta * weight;
+            grad[1] += dy * delta * weight;
         }
     }
 
     /* inv(A^T A) */
-    det_inv = 1.0 / (a11 * a22 - a12 * a12 + epsilon);
+    det_inv = 1.0 / (a11 * a22 - a12 * a12 + machine_eps);
     temp = a11;
     a11 = a22 * det_inv;
     a22 = temp * det_inv;
@@ -73,7 +79,7 @@ void LeastSquaresGrad::SolveLeastSquares2D(const unsigned long iNode, const Node
 
     /* grad(phi) = inv(A^T A) * (A^T b)  */
     for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-        double *grad = GetGradient(iNode, iVar);
+        zdouble *grad = GetGradient(iNode, iVar);
         temp = grad[0];
         grad[0] = a11 * grad[0] + a12 * grad[1];
         grad[1] = a12 * temp + a22 * grad[1];
@@ -82,32 +88,37 @@ void LeastSquaresGrad::SolveLeastSquares2D(const unsigned long iNode, const Node
 
 void LeastSquaresGrad::SolveLeastSquares3D(const unsigned long iNode, const Node &node_i, 
         const vector<Node> &nodes, const SolVector *primVar) {
-    const double *v_i = primVar->GetBlock(iNode);
+    const zdouble *v_i = primVar->GetBlock(iNode);
     const vector<unsigned long> &nbrs = node_i.Neighbors();
     const unsigned short nNbrs = nbrs.size();
-    a11 = a12 = a13 = a22 = a23 = a33 = 0;
+    a11 = a12 = a13 = a22 = a23 = a33 = 0.0;
 
     for (auto iNbr : nbrs) {
         const Node &node_j = nodes[iNbr]; 
-        const double *v_j = primVar->GetBlock(iNbr);
-        /* A^T A */
+        const zdouble *v_j = primVar->GetBlock(iNbr);
         dx = node_j.X() - node_i.X();
         dy = node_j.Y() - node_i.Y();
         dz = node_j.Z() - node_i.Z();
-        a11 += dx * dx;
-        a12 += dx * dy;
-        a13 += dx * dz;
-        a22 += dy * dy;
-        a23 += dy * dz;
-        a33 += dz * dz;
+
+        zdouble weight = 1.0;
+        zdouble dist_ij_2 = dx * dx + dy * dy + dz * dz;
+        weight = 1.0 / (dist_ij_2 + machine_eps);
+
+        /* A^T A */
+        a11 += dx * dx * weight;
+        a12 += dx * dy * weight;
+        a13 += dx * dz * weight;
+        a22 += dy * dy * weight;
+        a23 += dy * dz * weight;
+        a33 += dz * dz * weight;
 
         /* A^T b */
         for (auto iVar = 0ul; iVar < nVar; iVar++) {
-            double *grad = GetGradient(iNode, iVar);
+            zdouble *grad = GetGradient(iNode, iVar);
             delta = v_j[iVar] - v_i[iVar];
-            grad[0] += dx * delta;
-            grad[1] += dy * delta;
-            grad[2] += dz * delta;
+            grad[0] += dx * delta * weight;
+            grad[1] += dy * delta * weight;
+            grad[2] += dz * delta * weight;
         }
     }
 
@@ -118,7 +129,7 @@ void LeastSquaresGrad::SolveLeastSquares3D(const unsigned long iNode, const Node
     cofac22 = a11 * a33 - a13 * a13;
     cofac23 = -(a11 * a23 - a12 * a13);
     cofac33 = a11 * a22 - a12 * a12;
-    det_inv = 1 / (a11 * cofac11 + a12 * cofac12 + a13 * cofac13 + epsilon);
+    det_inv = 1.0 / (a11 * cofac11 + a12 * cofac12 + a13 * cofac13 + machine_eps);
     a11 = cofac11 * det_inv;
     a12 = cofac12 * det_inv;
     a13 = cofac13 * det_inv;
@@ -128,7 +139,7 @@ void LeastSquaresGrad::SolveLeastSquares3D(const unsigned long iNode, const Node
 
     /* grad(phi) = inv(A^T A) * (A^T b)  */
     for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-        double *grad = GetGradient(iNode, iVar);
+        zdouble *grad = GetGradient(iNode, iVar);
         temp = grad[0];
         temp2 = grad[1];
         grad[0] = a11 * grad[0] + a12 * grad[1] + a13 * grad[2];
@@ -137,37 +148,37 @@ void LeastSquaresGrad::SolveLeastSquares3D(const unsigned long iNode, const Node
     }
 }
 
-const double* LeastSquaresGrad::GetGradientConst(const unsigned long iNode, const unsigned short iVar) const { 
+const zdouble* LeastSquaresGrad::GetGradientConst(const unsigned long iNode, const unsigned short iVar) const { 
     return &grad_array[iNode * blk_len + nDim * iVar];
 }
 
-double * LeastSquaresGrad::GetGradient(const unsigned long iNode, const unsigned short iVar) { 
+zdouble * LeastSquaresGrad::GetGradient(const unsigned long iNode, const unsigned short iVar) { 
     return &grad_array[iNode * blk_len + nDim * iVar];
 }
 
-void LeastSquaresGrad::Reconstruct(double *v_i, double *v_j, const unsigned long iNodeI, 
-        const unsigned long iNodeJ, const double edge_len, const double *unit_norm) const {
-    const double &epsilon = limiter.GetEpsilon();
+void LeastSquaresGrad::Reconstruct(zdouble *v_i, zdouble *v_j, const unsigned long iNodeI, 
+        const unsigned long iNodeJ, const zdouble edge_len, const zdouble *unit_norm) const {
+    const zdouble &epsilon = limiter.GetEpsilon();
 
-    double tmp_vi[nVar], tmp_vj[nVar];
+    zdouble tmp_vi[nVar], tmp_vj[nVar];
     for (size_t i = 0; i < nVar; i++) {
         tmp_vi[i] = v_i[i];
         tmp_vj[i] = v_j[i];
     }
 
     for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-        const double *grad_i = GetGradientConst(iNodeI, iVar);
-        const double *grad_j = GetGradientConst(iNodeJ, iVar);
-        double proj_grad_i = 0, proj_grad_j = 0;
+        const zdouble *grad_i = GetGradientConst(iNodeI, iVar);
+        const zdouble *grad_j = GetGradientConst(iNodeJ, iVar);
+        zdouble proj_grad_i = 0, proj_grad_j = 0;
         for (unsigned short iDim = 0; iDim < nDim; iDim++) {
             proj_grad_i += grad_i[iDim] * unit_norm[iDim];
             proj_grad_j += grad_j[iDim] * unit_norm[iDim];
         }
-        double del_v = v_j[iVar] - v_i[iVar];
 
-        double lim_i = 1.0;
-        double lim_j = 1.0;
+        zdouble lim_i = 1.0;
+        zdouble lim_j = 1.0;
         if (is_limited) {
+            zdouble del_v = v_j[iVar] - v_i[iVar];
             lim_i = limiter.Limit(proj_grad_i, del_v, epsilon);
             lim_j = limiter.Limit(proj_grad_j, del_v, epsilon);
         }
@@ -176,6 +187,7 @@ void LeastSquaresGrad::Reconstruct(double *v_i, double *v_j, const unsigned long
         v_j[iVar] -= 0.5 * edge_len * proj_grad_j * lim_j;
     }
 
+    /* Undo higher order reconstruction if negative densities or pressures are present */
     if (v_i[0] <= 0.0 || v_i[nVar-1] <= 0.0 || v_j[0] <= 0.0 || v_j[nVar-1] <= 0.0) {
         for (size_t i = 0; i < nVar; i++) {
             v_i[i] = tmp_vi[i];

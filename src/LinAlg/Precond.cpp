@@ -22,8 +22,8 @@ void Jacobi::Build(const SolMatrix &jac_mat) {
     unsigned long nVar = config->GetNumVars();
 
     for (auto i = 0ul; i < nEqn; i++) {
-        double *jacobi_blk = jacobi.GetBlock(i);
-        const double *jac_diag = jac_mat.GetBlock(i, i);
+        zdouble *jacobi_blk = jacobi.GetBlock(i);
+        const zdouble *jac_diag = jac_mat.GetBlock(i, i);
         blas::InverseMatrix(jac_diag, jacobi_blk, nVar);
     }
 }

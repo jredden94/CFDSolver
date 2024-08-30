@@ -23,10 +23,10 @@ void Grid::CellData() {
     unsigned long nCells = cells.size();
     for (size_t i = 0; i < nCells; i++) {
         auto &cell = cells[i];
-        double vol = cell->ComputeVolume();
+        zdouble vol = cell->ComputeVolume();
         cell->ComputeCentroid();
         vector<Node*> &cNodes = cell->pNodes;
-        double nodeAvgVol = vol / cNodes.size();
+        zdouble nodeAvgVol = vol / cNodes.size();
 
         for (Node *n : cNodes) {
             n->iCells.push_back(i);
@@ -97,7 +97,7 @@ void Grid::EdgeData(void) {
 void Grid::BoundaryData() {
 
     // Init local vector of dual areas
-    vector<vector<double>> areaVectors(nodes.size() );
+    vector<vector<zdouble>> areaVectors(nodes.size() );
     for (size_t i = 0; i < nodes.size(); i++) {
         areaVectors[i].resize(3);
         areaVectors[i][0] = 0;
@@ -111,7 +111,7 @@ void Grid::BoundaryData() {
         set<unsigned long> uniqueNodes;
         for (size_t i = 0; i < nbfaces; i++) {
             auto &c = b->cells[i];
-            vector<double> areaVec = c->AreaVector();
+            vector<zdouble> areaVec = c->AreaVector();
             size_t nCellNodes = c->iNodes.size();
             for (const auto &iNode : c->iNodes) { 
                 uniqueNodes.insert(iNode);
@@ -130,8 +130,8 @@ void Grid::BoundaryData() {
         b->nodeAreas.resize(nbNodes);
         for (size_t i = 0; i < nbNodes; i++) {
             const unsigned long &iNode = b->iNodes[i];
-            const vector<double> &area = areaVectors[iNode];
-            double area_mag = sqrt(area[0] * area[0] + area[1] * area[1] + area[2] * area[2]);
+            const vector<zdouble> &area = areaVectors[iNode];
+            zdouble area_mag = sqrt(area[0] * area[0] + area[1] * area[1] + area[2] * area[2]);
             b->nodeAreas[i] = area_mag;
 
             b->nodeNorms[i].resize(3);
@@ -147,10 +147,17 @@ void Grid::BoundaryData() {
 }
 
 void Grid::FlipBoundaryNorms() {
+    auto &bound = bndrys[0];
+    auto &norms = bound->nodeNorms;
+    for (auto &norm : norms) {
+        for (auto i = 0ul; i < norm.size(); i++) norm[i] *= -1.0;
+    }
+    /*
     for (auto &bound : bndrys) {
         auto &norms = bound->nodeNorms;
         for (auto &norm : norms) {
             for (auto i = 0ul; i < norm.size(); i++) norm[i] *= -1.0;
         }
     }
+    */
 }

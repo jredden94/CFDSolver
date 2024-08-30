@@ -7,11 +7,11 @@ GMRES::GMRES() {
     w.resize(max_iter + 1);
     z.resize(max_iter + 1);
     
-    g = new double[max_iter+1];
-    sn = new double[max_iter+1];
-    cs = new double[max_iter+1];
-    y = new double[max_iter];
-    Hess = new double [(max_iter+1) * max_iter];
+    g = new zdouble[max_iter+1];
+    sn = new zdouble[max_iter+1];
+    cs = new zdouble[max_iter+1];
+    y = new zdouble[max_iter];
+    Hess = new zdouble [(max_iter+1) * max_iter];
 
 }
 GMRES::~GMRES() { 
@@ -25,13 +25,13 @@ GMRES::~GMRES() {
 void GMRES::Solve(const SolMatrix &mat, SolVector &b, SolVector &x, const unique_ptr<Precond> &precond) { 
     Reset();
 
-    double norm0 = b.Norm();
+    zdouble norm0 = b.Norm();
 
     // Assuming x0 = 0
     //w[0].SetZeroes();
     w[0] -= b;
 
-    double beta = w[0].Norm();
+    zdouble beta = w[0].Norm();
     w[0] /= -beta;
     g[0] = beta;
 
@@ -60,13 +60,13 @@ void GMRES::Solve(const SolMatrix &mat, SolVector &b, SolVector &x, const unique
 }
 
 void GMRES::GramSchmidt(unsigned long i) { 
-    const double reorth = 0.98;
-    double nrm = w[i+1].SquaredNorm();
-    double thr = nrm * reorth;
+    const zdouble reorth = 0.98;
+    zdouble nrm = w[i+1].SquaredNorm();
+    zdouble thr = nrm * reorth;
 
     for (int k = 0; k < i+1; k++) {
-        double prod = w[i+1].DotProd(w[k]);
-        double h_ki = prod;
+        zdouble prod = w[i+1].DotProd(w[k]);
+        zdouble h_ki = prod;
         w[i+1].MinusEqualScalarMult(w[k], prod);
         
         if (prod * prod > thr) {
@@ -87,30 +87,30 @@ void GMRES::GramSchmidt(unsigned long i) {
     w[i+1] /= nrm;
 }
 
-void GMRES::ApplyGivens(double s, double c, double &h1, double &h2) {
-    double temp = c * h1 + s * h2;
+void GMRES::ApplyGivens(zdouble s, zdouble c, zdouble &h1, zdouble &h2) {
+    zdouble temp = c * h1 + s * h2;
     h2 = c * h2 - s * h1;
     h1 = temp;
 }
 
-double Sign(double x, double y) {
+zdouble Sign(zdouble x, zdouble y) {
     if (y == 0.0) return 0.0;
     return fabs(x) * (y < 0.0 ? -1.0 : 1.0);
 }
 
-void GMRES::GenerateGivens(double &dx, double &dy, double &s, double &c) { 
+void GMRES::GenerateGivens(zdouble &dx, zdouble &dy, zdouble &s, zdouble &c) { 
     if (dx == 0 && dy == 0) {
         c = 1.0;
         s = 0.0;
     }
     else if (fabs(dy) > fabs(dx)) {
-        double temp = dx / dy;
+        zdouble temp = dx / dy;
         dx = sqrt(1.0 + temp * temp);
         s = Sign(1.0 / dx, dy);
         c = temp * s;
     }
     else if (fabs(dy) <= fabs(dx)) {
-        double temp = dy / dx;
+        zdouble temp = dy / dx;
         dy = sqrt(1.0 + temp * temp);
         c = Sign(1.0 / dy, dx);
         s = temp * c;
@@ -126,7 +126,7 @@ void GMRES::GenerateGivens(double &dx, double &dy, double &s, double &c) {
     dy = 0.0;
 }
 
-void GMRES::SolveReduced(unsigned long n, const double *hess, const double *rhs, double *x) {
+void GMRES::SolveReduced(unsigned long n, const zdouble *hess, const zdouble *rhs, zdouble *x) {
     for (int i = 0; i < n; i++) x[i] = rhs[i];
 
     for (int i = n-1; i >=0; i--) {

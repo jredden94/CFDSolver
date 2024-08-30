@@ -1,4 +1,6 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 target_sources(cfd
 	PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/AD.cpp
 )

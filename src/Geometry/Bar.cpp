@@ -6,7 +6,7 @@ Bar::Bar(vector<unsigned long>& connectivity, vector<Node*>& nodePtr)
             */
 Bar::~Bar() { }
 
-double Bar::ComputeVolume(void) const { 
+zdouble Bar::ComputeVolume(void) const { 
     cout << "Tried to calculate volume of a 'Bar' object. Returning negative value.\n";
     return -1; 
 }
@@ -16,8 +16,8 @@ vector<vector<size_t>> Bar::GetEdges(void) const {
     return vector<vector<size_t>>(); 
 }
 
-vector<double> Bar::AreaVector() const {
-    vector<double> norm(3,0);
+vector<zdouble> Bar::AreaVector() const {
+    vector<zdouble> norm(3,0);
     const Node *n1 = pNodes[0];
     const Node *n2 = pNodes[1];
     //norm[0] = n1->Y() - n2->Y();

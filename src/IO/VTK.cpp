@@ -14,13 +14,13 @@ void VTK::WriteVTK(const string &filename, const Grid &grid, const Solver &solve
 
     // Dummy data for boundary testing. Remove this and the body data below
     /*
-    vector<double> sol(nNodes, 1);
+    vector<zdouble> sol(nNodes, 1);
     const vector<unique_ptr<Boundary>> &boundaries = grid.Boundaries();
     cout << "Hello :)\n";
     cout << "nBound: " << boundaries.size() << endl;
     int counter = 0;
     for (const auto &b : boundaries) {
-        double b_val = 0;
+        zdouble b_val = 0;
 
         cout << b->Name() << "\t" << counter << endl;
 

@@ -19,10 +19,10 @@ Convection::Convection(Config::ConvFlux) {
     nVar = config->GetNumVars();
     nDim = config->GetNumDims();
     implicit = config->IsImplicit();
-    u_i = new double[nVar];
-    u_j = new double[nVar];
-    v_i = new double[nVar];
-    v_j = new double[nVar];
+    u_i = new zdouble[nVar];
+    u_j = new zdouble[nVar];
+    v_i = new zdouble[nVar];
+    v_j = new zdouble[nVar];
     eigen.resize(nVar);
     flux_i.resize(nVar);
     flux_j.resize(nVar);
@@ -33,14 +33,14 @@ Convection::Convection(Config::ConvFlux) {
     norm.resize(3);
 
     if (implicit) {
-        jac_i = new double[nVar * nVar];
-        jac_j = new double[nVar * nVar];
+        jac_i = new zdouble[nVar * nVar];
+        jac_j = new zdouble[nVar * nVar];
     }
 }
 
-void Convection::SetStates(const vector<double> &U_i, 
-        const vector<double> &U_j, 
-        const vector<double> &areaVector, const double &area_mag) {
+void Convection::SetStates(const vector<zdouble> &U_i, 
+        const vector<zdouble> &U_j, 
+        const vector<zdouble> &areaVector, const zdouble &area_mag) {
     for (unsigned short i = 0; i < nVar; i++) {
         u_i[i] = U_i[i];
         u_j[i] = U_j[i];
@@ -49,8 +49,8 @@ void Convection::SetStates(const vector<double> &U_i,
     area = area_mag;
 }
 
-void Convection::SetStates(const double* v_i, const double* v_j, 
-        const double* areaVector, const double &area_mag) {
+void Convection::SetStates(const zdouble* v_i, const zdouble* v_j, 
+        const zdouble* areaVector, const zdouble &area_mag) {
 
     for (unsigned short i = 0; i < nVar; i++) {
         this->v_i[i] = v_i[i];
@@ -63,10 +63,10 @@ void Convection::SetStates(const double* v_i, const double* v_j,
     area = area_mag;
 }
 
-const vector<double>& Convection::Flux() { return flux; }
-const double* Convection::JacI() { return jac_i; }
-const double* Convection::JacJ() { return jac_j; }
-const double& Convection::MaxWaveSpeed() { return maxWaveSpeed; }
+const vector<zdouble>& Convection::Flux() { return flux; }
+const zdouble* Convection::JacI() { return jac_i; }
+const zdouble* Convection::JacJ() { return jac_j; }
+const zdouble& Convection::MaxWaveSpeed() { return maxWaveSpeed; }
 
 unique_ptr<Convection> Convection::CreateConvFlux(Config *config) {
     const Config::ConvFlux &fluxScheme = config->GetConvFluxScheme();
@@ -77,15 +77,15 @@ unique_ptr<Convection> Convection::CreateConvFlux(Config *config) {
     }
 }
 
-void Convection::ComputeFlux(const double &rho, const double *vel, const double &enthalpy,
-        const double *norm, const double *flux) {
+void Convection::ComputeFlux(const zdouble &rho, const zdouble *vel, const zdouble &enthalpy,
+        const zdouble *norm, const zdouble *flux) {
 }
 
-void Convection::ComputeJacobian(const double *vel, const double &vel_sqr, 
-        const double &proj_vel, const double *norm, const double &energy, double *jac, const double scale) {
+void Convection::ComputeJacobian(const zdouble *vel, const zdouble &vel_sqr, 
+        const zdouble &proj_vel, const zdouble *norm, const zdouble &energy, zdouble *jac, const zdouble scale) {
 
-    double phi = 0.5 * gamma_minus_one * vel_sqr;
-    double a1 = gamma * energy - phi;
+    zdouble phi = 0.5 * gamma_minus_one * vel_sqr;
+    zdouble a1 = gamma * energy - phi;
 
     if (nDim == 3) {
         jac[0] = 0.0;
@@ -141,9 +141,9 @@ void Convection::ComputeJacobian(const double *vel, const double &vel_sqr,
     }
 }
 
-void Convection::ComputePTensor(const double &rho, const double *vel,
-        const double &soundSpeed, const double *norm, double *p_tensor) {
-    double sqvel, rhooc, rhoxc;
+void Convection::ComputePTensor(const zdouble &rho, const zdouble *vel,
+        const zdouble &soundSpeed, const zdouble *norm, zdouble *p_tensor) {
+    zdouble sqvel, rhooc, rhoxc;
     rhooc = rho / soundSpeed;
     rhoxc = rho * soundSpeed;
 
@@ -207,9 +207,9 @@ void Convection::ComputePTensor(const double &rho, const double *vel,
     }
 }
 
-void Convection::ComputeInversePTensor(const double &rho, const double *vel, 
-        const double &soundspeed, const double *norm, double *inv_p) {
-    double rhoxc, c2, gm1, k0orho, k1orho, gm1_o_c2, gm1_o_rhoxc, sqvel;
+void Convection::ComputeInversePTensor(const zdouble &rho, const zdouble *vel, 
+        const zdouble &soundspeed, const zdouble *norm, zdouble *inv_p) {
+    zdouble rhoxc, c2, gm1, k0orho, k1orho, gm1_o_c2, gm1_o_rhoxc, sqvel;
     rhoxc = rho * soundspeed;
     c2 = soundspeed * soundspeed;
     gm1 = gamma_minus_one;

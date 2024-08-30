@@ -1,18 +1,18 @@
 #include "Node.hpp"
 
 Node::Node() : x(0), y(0), z(0) { }
-Node::Node(double x, double y, double z) : x(x), y(y), z(z), dualVol(0){ }
+Node::Node(zdouble x, zdouble y, zdouble z) : x(x), y(y), z(z), dualVol(0){ }
 Node::Node(const Node &node) : x(node.x), y(node.y), z(node.z), dualVol(0) { }
 Node::~Node() { }
 
-const double& Node::X() const { return x; }
-const double& Node::Y() const { return y; }
-const double& Node::Z() const { return z; }
-void Node::SetX(double x) { this->x = x; } 
-void Node::SetY(double y) { this->y = y; } 
-void Node::SetZ(double z) { this->z = z; } 
-const vector<double> Node::Coordinates() const { return vector<double>{x, y, z}; }
-const double& Node::DualVolume() const { return dualVol; }
+const zdouble& Node::X() const { return x; }
+const zdouble& Node::Y() const { return y; }
+const zdouble& Node::Z() const { return z; }
+void Node::SetX(zdouble x) { this->x = x; } 
+void Node::SetY(zdouble y) { this->y = y; } 
+void Node::SetZ(zdouble z) { this->z = z; } 
+const vector<zdouble> Node::Coordinates() const { return vector<zdouble>{x, y, z}; }
+const zdouble& Node::DualVolume() const { return dualVol; }
 const vector<unsigned long> Node::Cell() const { return iCells; }
 const vector<unsigned long>& Node::Neighbors() const { return iNbrs; }
 

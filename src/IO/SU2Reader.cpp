@@ -41,13 +41,13 @@ void SU2Reader::ReadFile() {
     nNodes = stoi(FindTag("NPOIN", file));
     nodes.resize(nNodes);
 
-    double coord[15];
+    zdouble coord[15];
     if (nDim == 3) {
         for (auto iNode = 0ul; iNode < nNodes; iNode++) {
             getline(file, line);
             istringstream iss(line);
             size_t count = 0;
-            double value;
+            zdouble value;
             while (iss >> value) coord[count++] = value;
 
             Node &node = nodes[iNode];
@@ -61,7 +61,7 @@ void SU2Reader::ReadFile() {
             getline(file, line);
             istringstream iss(line);
             size_t count = 0;
-            double value;
+            zdouble value;
             while (iss >> value) coord[count++] = value;
 
             Node &node = nodes[iNode];

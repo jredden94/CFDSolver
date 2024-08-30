@@ -1,35 +1,37 @@
 #pragma once
 
 #include "../../Common/Config.hpp"
+#include "../../Common/AD.hpp"
 
 class Viscous {
     public:
         Viscous(void);
         ~Viscous(void);
 
-        void SetStates(const double *v_i, const double *v_j, const double *norm,
-                const double area, const double edge_len, const double *vel_grad_i, const double *vel_grad_j);
+        void SetStates(const zdouble *v_i, const zdouble *v_j, const zdouble *norm,
+                const zdouble area, const zdouble edge_len, const zdouble *vel_grad_i, const zdouble *vel_grad_j);
         void ComputeResidual(void);
 
-        const double* Flux(void) const;
-        const double* JacI(void) const;
-        const double* JacJ(void) const;
+        const zdouble* Flux(void) const;
+        const zdouble* JacI(void) const;
+        const zdouble* JacJ(void) const;
+        const zdouble* StressTensor(void) const;
+        void ComputeStressTensor(const zdouble *vel_grad, const zdouble viscosity, zdouble *tau );
 
     private:
-        void ComputeStressTensor(void);
         void ComputeViscousFlux(void);
         void ComputeTauJacobian(void);
         void ComputeJacobians(void);
 
         unsigned short nVar, nDim;
 
-        double viscosity;
-        double *tau, *visc_flux;
-        double *v_i, *v_j, *v_mean, *norm, *coord_i, *coord_j;
-        double area, edge_len;
-        double *vel_grad_i, *vel_grad_j, *vel_grad_mean;
+        zdouble viscosity;
+        zdouble *tau, *visc_flux;
+        zdouble *v_i, *v_j, *v_mean, *norm, *coord_i, *coord_j;
+        zdouble area, edge_len;
+        zdouble *vel_grad_i, *vel_grad_j, *vel_grad_mean;
 
 
         bool implicit;
-        double *tau_jac, *jac_i, *jac_j;
+        zdouble *tau_jac, *jac_i, *jac_j;
 };
